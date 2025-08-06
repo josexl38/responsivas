@@ -277,6 +277,63 @@ table {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    min-width: 800px; /* Asegurar ancho mínimo para desktop */
+    table-layout: auto; /* Permitir que las columnas se ajusten automáticamente */
+}
+
+/* Contenedor de tabla con scroll horizontal */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+/* Estilos específicos para desktop */
+@media (min-width: 1024px) {
+    .table-container {
+        overflow-x: visible; /* En desktop no necesitamos scroll horizontal */
+    }
+    
+    table {
+        min-width: 100%;
+        width: 100%;
+    }
+    
+    th, td {
+        white-space: nowrap; /* Evitar que el texto se corte */
+        min-width: 120px; /* Ancho mínimo para cada columna */
+    }
+    
+    th:first-child, td:first-child {
+        min-width: 100px; /* Nómina */
+    }
+    
+    th:nth-child(2), td:nth-child(2) {
+        min-width: 150px; /* Nombre */
+    }
+    
+    th:nth-child(3), td:nth-child(3) {
+        min-width: 150px; /* Apellidos */
+    }
+    
+    th:nth-child(4), td:nth-child(4) {
+        min-width: 200px; /* Correo */
+    }
+    
+    th:nth-child(5), td:nth-child(5) {
+        min-width: 180px; /* Empresa */
+    }
+    
+    th:nth-child(6), td:nth-child(6) {
+        min-width: 150px; /* Departamento */
+    }
+    
+    th:last-child, td:last-child {
+        min-width: 120px; /* Acciones */
+    }
 }
 
 table, th, td {
@@ -287,6 +344,7 @@ th, td {
     padding: 12px;
     text-align: left;
     transition: background-color 0.3s ease;
+    vertical-align: top; /* Alinear contenido al top */
 }
 
 th {
@@ -296,6 +354,9 @@ th {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-size: 12px;
+    position: sticky; /* Hacer que el header se mantenga visible */
+    top: 0;
+    z-index: 10;
 }
 
 tr:nth-child(even) {
@@ -305,6 +366,172 @@ tr:nth-child(even) {
 tr:hover {
     background-color: rgba(52, 152, 219, 0.1);
     transform: scale(1.01);
+}
+
+/* Estilos para los enlaces de acción */
+.action-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-links a {
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.action-links a.edit {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+}
+
+.action-links a.delete {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+}
+
+.action-links a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para filtros de búsqueda avanzada */
+.search-filters {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.filter-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+    flex: 1;
+}
+
+.filter-group label {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.filter-group input,
+.filter-group select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+}
+
+.filter-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.btn-search {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    transform: translateY(-1px);
+}
+
+.btn-clear {
+    background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-clear:hover {
+    background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+    transform: translateY(-1px);
+}
+
+/* Indicador de resultados */
+.results-info {
+    background: rgba(52, 152, 219, 0.1);
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    border-left: 4px solid #3498db;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.pagination a,
+.pagination span {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #2c3e50;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.pagination a:hover {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border-color: #3498db;
+}
+
+.pagination .current {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border-color: #3498db;
+}
+
+.pagination .disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 /* Animaciones */
@@ -366,6 +593,32 @@ body[data-page="eliminar"] {
 
 /* Estilos responsivos */
 @media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto; /* Mantener scroll horizontal en móviles */
+    }
+    
+    table {
+        min-width: 600px; /* Ancho mínimo menor para móviles */
+    }
+    
+    .filter-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filter-group {
+        min-width: 100%;
+    }
+    
+    .filter-buttons {
+        justify-content: center;
+    }
+    
+    .action-links {
+        flex-direction: column;
+        gap: 5px;
+    }
+
     .container {
         padding: 10px;
         height: auto;
@@ -417,6 +670,16 @@ body[data-page="eliminar"] {
 }
 
 @media (max-width: 600px) {
+    table {
+        min-width: 500px;
+    }
+    
+    th, td {
+        padding: 6px;
+        font-size: 11px;
+        min-width: 80px;
+    }
+
     .box {
         width: 100%;
         padding: 12px;

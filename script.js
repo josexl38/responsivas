@@ -211,6 +211,9 @@ function mejorarBusqueda() {
 
 // Inicializar mejoras de búsqueda cuando se muestra el formulario
 document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar búsqueda avanzada
+    initializeAdvancedSearch();
+    
     // Observar cambios en los formularios para aplicar mejoras
     const observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
@@ -218,6 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const target = mutation.target;
                 if (target.id === 'formulario_buscar' && !target.classList.contains('hidden')) {
                     mejorarBusqueda();
+                    initializeAdvancedSearch();
                 }
             }
         });
@@ -228,3 +232,248 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(form, { attributes: true });
     });
 });
+
+// Sistema de búsqueda avanzada
+function initializeAdvancedSearch() {
+    // Crear filtros dinámicos para diferentes tipos de búsqueda
+    const searchForm = document.querySelector('#formulario_buscar form');
+    if (searchForm && !searchForm.classList.contains('advanced-initialized')) {
+        searchForm.classList.add('advanced-initialized');
+        enhanceSearchForm(searchForm);
+    }
+}
+
+function enhanceSearchForm(form) {
+    // Conectar los campos visibles con los campos ocultos del formulario
+    const visibleNomina = document.querySelector('#buscar_nomina');
+    const visibleApellidos = document.querySelector('#buscar_apellidos');
+    const hiddenNomina = form.querySelector('input[name="buscar_nomina"]');
+    const hiddenApellidos = form.querySelector('input[name="buscar_apellidos"]');
+    
+    if (visibleNomina && hiddenNomina) {
+        visibleNomina.addEventListener('input', function() {
+            hiddenNomina.value = this.value;
+        });
+    }
+    
+    if (visibleApellidos && hiddenApellidos) {
+        visibleApellidos.addEventListener('input', function() {
+            hiddenApellidos.value = this.value;
+        });
+    }
+    
+    // Manejar el envío del formulario desde los botones externos
+    const searchBtn = document.querySelector('.btn-search');
+    if (searchBtn) {
+        searchBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Validar que al menos un campo tenga contenido
+            const nominaValue = visibleNomina ? visibleNomina.value.trim() : '';
+            const apellidosValue = visibleApellidos ? visibleApellidos.value.trim() : '';
+            
+            if (!nominaValue && !apellidosValue) {
+                showToast('Por favor ingrese una nómina o apellidos para buscar', 'error');
+                return;
+            }
+            
+            // Actualizar campos ocultos y enviar formulario
+            if (hiddenNomina) hiddenNomina.value = nominaValue;
+            if (hiddenApellidos) hiddenApellidos.value = apellidosValue;
+            
+            form.submit();
+        });
+    }
+    
+    // Manejar botón de limpiar
+    const clearBtn = document.querySelector('.btn-clear');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function(e) {
+            if (this.textContent.includes('Limpiar')) {
+                e.preventDefault();
+                if (visibleNomina) visibleNomina.value = '';
+                if (visibleApellidos) visibleApellidos.value = '';
+                if (hiddenNomina) hiddenNomina.value = '';
+                if (hiddenApellidos) hiddenApellidos.value = '';
+                showToast('Campos limpiados', 'success', 1500);
+            }
+        });
+    }
+    
+    // Agregar funcionalidad de limpieza automática entre campos
+    const inputs = [visibleNomina, visibleApellidos].filter(input => input);
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', function() {
+            if (this.value.trim()) {
+                // Limpiar otros campos cuando se escribe en uno
+                inputs.forEach((otherInput, otherIndex) => {
+                    if (index !== otherIndex) {
+                        otherInput.value = '';
+                        // También limpiar el campo oculto correspondiente
+                        if (otherInput === visibleNomina && hiddenNomina) {
+                            hiddenNomina.value = '';
+                        } else if (otherInput === visibleApellidos && hiddenApellidos) {
+                            hiddenApellidos.value = '';
+                        }
+                    }
+                });
+            }
+        });
+    });
+    
+    // Agregar validación en tiempo real
+    if (visibleNomina) {
+        visibleNomina.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+            if (this.value && this.value.length < 3) {
+                this.setCustomValidity('Ingrese al menos 3 dígitos');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+    
+    // Mejorar búsqueda por apellidos
+    if (visibleApellidos) {
+        visibleApellidos.addEventListener('input', function() {
+            // Capitalizar primera letra de cada palabra
+            this.value = this.value.replace(/\b\w/g, l => l.toUpperCase());
+            if (this.value && this.value.length < 2) {
+                this.setCustomValidity('Ingrese al menos 2 caracteres');
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+    }
+}
+
+// Función para mejorar la visualización de tablas
+function optimizeTableDisplay() {
+    const tables = document.querySelectorAll('table');
+    tables.forEach(table => {
+        // Envolver tabla en contenedor si no existe
+        if (!table.parentElement.classList.contains('table-container')) {
+            const container = document.createElement('div');
+            container.className = 'table-container';
+            table.parentNode.insertBefore(container, table);
+            container.appendChild(table);
+        }
+        
+        // Mejorar enlaces de acción
+        const actionCells = table.querySelectorAll('td');
+        actionCells.forEach(cell => {
+            const links = cell.querySelectorAll('a');
+            if (links.length > 1) {
+                const linksContainer = document.createElement('div');
+                linksContainer.className = 'action-links';
+                
+                links.forEach(link => {
+                    if (link.textContent.toLowerCase().includes('editar')) {
+                        link.classList.add('edit');
+                    } else if (link.textContent.toLowerCase().includes('eliminar')) {
+                        link.classList.add('delete');
+                    }
+                    linksContainer.appendChild(link);
+                });
+                
+                cell.innerHTML = '';
+                cell.appendChild(linksContainer);
+            }
+        });
+    });
+}
+
+// Función para agregar información de resultados
+function addResultsInfo(count, searchTerm = '') {
+    const existingInfo = document.querySelector('.results-info');
+    if (existingInfo) {
+        existingInfo.remove();
+    }
+    
+    const info = document.createElement('div');
+    info.className = 'results-info';
+    
+    let message = `Se encontraron ${count} resultado${count !== 1 ? 's' : ''}`;
+    if (searchTerm) {
+        message += ` para "${searchTerm}"`;
+    }
+    
+    info.textContent = message;
+    
+    const table = document.querySelector('table');
+    if (table) {
+        table.parentNode.insertBefore(info, table);
+    }
+}
+
+// Ejecutar optimizaciones cuando se cargan resultados
+window.addEventListener('load', function() {
+    optimizeTableDisplay();
+    
+    // Contar resultados si hay tabla
+    const table = document.querySelector('table');
+    if (table) {
+        const rows = table.querySelectorAll('tbody tr, tr:not(:first-child)');
+        if (rows.length > 0) {
+            addResultsInfo(rows.length);
+        }
+    }
+});
+
+// Función para exportar datos a CSV
+function exportToCSV(filename = 'datos_exportados.csv') {
+    const table = document.querySelector('table');
+    if (!table) {
+        showToast('No hay datos para exportar', 'error');
+        return;
+    }
+    
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+    
+    rows.forEach(row => {
+        const cols = row.querySelectorAll('td, th');
+        const rowData = [];
+        cols.forEach(col => {
+            // Limpiar el texto y escapar comillas
+            let text = col.textContent.trim().replace(/"/g, '""');
+            rowData.push(`"${text}"`);
+        });
+        csv.push(rowData.join(','));
+    });
+    
+    // Crear y descargar archivo
+    const csvContent = csv.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('Datos exportados exitosamente', 'success');
+    }
+}
+
+// Agregar botón de exportación automáticamente
+function addExportButton() {
+    const table = document.querySelector('table');
+    if (table && !document.querySelector('.export-btn')) {
+        const exportBtn = document.createElement('button');
+        exportBtn.textContent = 'Exportar a CSV';
+        exportBtn.className = 'btn-search export-btn';
+        exportBtn.style.marginLeft = '10px';
+        exportBtn.onclick = () => exportToCSV();
+        
+        // Buscar un lugar apropiado para insertar el botón
+        const buttonsContainer = document.querySelector('.filter-buttons') || 
+                                document.querySelector('button').parentNode;
+        if (buttonsContainer) {
+            buttonsContainer.appendChild(exportBtn);
+        }
+    }
+}

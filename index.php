@@ -149,14 +149,26 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             </div>
             <div id="formulario_buscar" class="hidden">
                 <h2>Buscar Información</h2>
+                <div class="search-filters">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label for="buscar_nomina">Buscar por Nómina:</label>
+                            <input type="text" id="buscar_nomina" name="buscar_nomina" placeholder="Ej: 1234">
+                        </div>
+                        <div class="filter-group">
+                            <label for="buscar_apellidos">Buscar por Apellidos:</label>
+                            <input type="text" id="buscar_apellidos" name="buscar_apellidos" placeholder="Ej: García">
+                        </div>
+                    </div>
+                    <div class="filter-buttons">
+                        <button type="submit" class="btn-search">🔍 Buscar</button>
+                        <button type="reset" class="btn-clear">🗑️ Limpiar</button>
+                        <button type="button" class="btn-clear" onclick="window.location.href='index.php'">↩️ Regresar</button>
+                    </div>
+                </div>
                 <form action="procesar_datos.php" method="get">
-                    <label for="buscar_nomina">Nómina:</label>
-                    <input type="text" id="buscar_nomina" name="buscar_nomina"><br>
-                    <label for="buscar_apellidos">Buscar por Apellidos:</label>
-                    <input type="text" id="buscar_apellidos" name="buscar_apellidos">
-                    <button type="submit">Buscar</button>
-                    <button type="reset">Limpiar</button>
-                    <button type="button" onclick="window.location.href='index.php'">Regresar</button>
+                    <input type="hidden" id="hidden_nomina" name="buscar_nomina">
+                    <input type="hidden" id="hidden_apellidos" name="buscar_apellidos">
                 </form>
             </div>
             <div id="formulario_responsivas" class="hidden">

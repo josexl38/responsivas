@@ -163,19 +163,31 @@
                     echo "<h2>Resultados de búsqueda para Nómina: $buscar_nomina</h2>";
 
                     if (mysqli_num_rows($result_trabajador) > 0) {
-                        echo "<h3>Datos del trabajador:</h3>";
+                        echo "<div class='results-info'>Se encontró 1 trabajador con la nómina: $buscar_nomina</div>";
+                        echo "<div class='table-container'>";
+                        echo "<table>";
+                        echo "<thead>";
+                        echo "<tr><th>Nómina</th><th>Nombre</th><th>Apellidos</th><th>Correo</th><th>Empresa</th><th>Departamento</th><th>Puesto</th><th>Acciones</th></tr>";
+                        echo "</thead>";
+                        echo "<tbody>";
                         while ($row = mysqli_fetch_assoc($result_trabajador)) {
-                            echo "Nómina: " . $row["nomina"] . "<br>";
-                            echo "Nombre: " . $row["nombre"] . "<br>";
-                            echo "Apellidos: " . $row["apellidos"] . "<br>";
-                            echo "Correo: " . $row["correo"] . "<br>";
-                            echo "Empresa: " . $row["empresa"] . "<br>";
-                            echo "Departamento: " . $row["departamento"] . "<br>";
-                            echo "Puesto: " . $row["puesto"] . "<br>";
-                            echo "<a href='editar.php?nomina=" . $row["nomina"] . "'>Editar</a> | ";
-                            echo "<a href='eliminar.php?nomina=" . $row["nomina"] . "'>Eliminar</a><br>";
-                            echo "<hr>";
+                            echo "<tr>";
+                            echo "<td>" . $row["nomina"] . "</td>";
+                            echo "<td>" . $row["nombre"] . "</td>";
+                            echo "<td>" . $row["apellidos"] . "</td>";
+                            echo "<td>" . $row["correo"] . "</td>";
+                            echo "<td>" . $row["empresa"] . "</td>";
+                            echo "<td>" . $row["departamento"] . "</td>";
+                            echo "<td>" . $row["puesto"] . "</td>";
+                            echo "<td><div class='action-links'>";
+                            echo "<a href='editar.php?nomina=" . $row["nomina"] . "' class='edit'>Editar</a>";
+                            echo "<a href='eliminar.php?nomina=" . $row["nomina"] . "' class='delete'>Eliminar</a>";
+                            echo "</div></td>";
+                            echo "</tr>";
                         }
+                        echo "</tbody>";
+                        echo "</table>";
+                        echo "</div>";
                     } else {
                         echo "<p>No se encontró ningún trabajador con la nómina $buscar_nomina.</p>";
                     }
@@ -184,22 +196,35 @@
                     $sql = "SELECT * FROM trabajador WHERE apellidos LIKE '%$buscar_apellidos%'";
                     $result = mysqli_query($conn, $sql);
 
+                    $num_results = mysqli_num_rows($result);
                     echo "<h2>Resultados de búsqueda para Apellidos: $buscar_apellidos</h2>";
 
                     if (mysqli_num_rows($result) > 0) {
-                        echo "<h3>Datos de los trabajadores:</h3>";
+                        echo "<div class='results-info'>Se encontraron $num_results trabajador" . ($num_results != 1 ? 'es' : '') . " con apellidos que contienen: $buscar_apellidos</div>";
+                        echo "<div class='table-container'>";
+                        echo "<table>";
+                        echo "<thead>";
+                        echo "<tr><th>Nómina</th><th>Nombre</th><th>Apellidos</th><th>Correo</th><th>Empresa</th><th>Departamento</th><th>Puesto</th><th>Acciones</th></tr>";
+                        echo "</thead>";
+                        echo "<tbody>";
                         while ($row = mysqli_fetch_assoc($result)) {
-                            echo "Nómina: " . $row["nomina"] . "<br>";
-                            echo "Nombre: " . $row["nombre"] . "<br>";
-                            echo "Apellidos: " . $row["apellidos"] . "<br>";
-                            echo "Correo: " . $row["correo"] . "<br>";
-                            echo "Empresa: " . $row["empresa"] . "<br>";
-                            echo "Departamento: " . $row["departamento"] . "<br>";
-                            echo "Puesto: " . $row["puesto"] . "<br>";
-                            echo "<a href='editar.php?nomina=" . $row["nomina"] . "'>Editar</a> | ";
-                            echo "<a href='eliminar.php?nomina=" . $row["nomina"] . "'>Eliminar</a><br>";
-                            echo "<hr>";
+                            echo "<tr>";
+                            echo "<td>" . $row["nomina"] . "</td>";
+                            echo "<td>" . $row["nombre"] . "</td>";
+                            echo "<td>" . $row["apellidos"] . "</td>";
+                            echo "<td>" . $row["correo"] . "</td>";
+                            echo "<td>" . $row["empresa"] . "</td>";
+                            echo "<td>" . $row["departamento"] . "</td>";
+                            echo "<td>" . $row["puesto"] . "</td>";
+                            echo "<td><div class='action-links'>";
+                            echo "<a href='editar.php?nomina=" . $row["nomina"] . "' class='edit'>Editar</a>";
+                            echo "<a href='eliminar.php?nomina=" . $row["nomina"] . "' class='delete'>Eliminar</a>";
+                            echo "</div></td>";
+                            echo "</tr>";
                         }
+                        echo "</tbody>";
+                        echo "</table>";
+                        echo "</div>";
                     } else {
                         echo "<p>No se encontró ningún trabajador con los apellidos que coincidan con: $buscar_apellidos.</p>";
                     }
@@ -212,17 +237,31 @@
                 $result_equipo = mysqli_query($conn, $sql_equipo);
 
                 if (mysqli_num_rows($result_equipo) > 0) {
-                    echo "<h3>Datos del equipo:</h3>";
+                    $num_equipos = mysqli_num_rows($result_equipo);
+                    echo "<h3>Equipos Asignados</h3>";
+                    echo "<div class='results-info'>Se encontraron $num_equipos equipo" . ($num_equipos != 1 ? 's' : '') . " asignado" . ($num_equipos != 1 ? 's' : '') . "</div>";
+                    echo "<div class='table-container'>";
+                    echo "<table>";
+                    echo "<thead>";
+                    echo "<tr><th>Tipo</th><th>Marca</th><th>Modelo</th><th>Número de Serie</th><th>Observaciones</th><th>Acciones</th></tr>";
+                    echo "</thead>";
+                    echo "<tbody>";
                     while ($row = mysqli_fetch_assoc($result_equipo)) {
-                        echo "Tipo: " . $row["tipo"] . "<br>";
-                        echo "Marca: " . $row["marca"] . "<br>";
-                        echo "Modelo: " . $row["modelo"] . "<br>";
-                        echo "Número de serie: " . $row["numero_serie"] . "<br>";
-                        echo "Observaciones: " . $row["observaciones"] . "<br>";
-                        echo "<a href='editar.php?numero_serie=" . $row["numero_serie"] . "'>Editar</a> | ";
-                        echo "<a href='eliminar.php?numero_serie=" . $row["numero_serie"] . "'>Eliminar</a><br>";
-                        echo "<hr>";
+                        echo "<tr>";
+                        echo "<td>" . $row["tipo"] . "</td>";
+                        echo "<td>" . $row["marca"] . "</td>";
+                        echo "<td>" . $row["modelo"] . "</td>";
+                        echo "<td>" . $row["numero_serie"] . "</td>";
+                        echo "<td>" . $row["observaciones"] . "</td>";
+                        echo "<td><div class='action-links'>";
+                        echo "<a href='editar.php?numero_serie=" . $row["numero_serie"] . "' class='edit'>Editar</a>";
+                        echo "<a href='eliminar.php?numero_serie=" . $row["numero_serie"] . "' class='delete'>Eliminar</a>";
+                        echo "</div></td>";
+                        echo "</tr>";
                     }
+                    echo "</tbody>";
+                    echo "</table>";
+                    echo "</div>";
                 } else {
                     echo "<p>No se encontró ningún equipo asociado con la nómina $buscar_nomina.</p>";
                 }
@@ -232,18 +271,31 @@
                 $result_hardware = mysqli_query($conn, $sql_hardware);
 
                 if (mysqli_num_rows($result_hardware) > 0) {
-                    echo "<h3>Datos del hardware:</h3>";
+                    $num_hardware = mysqli_num_rows($result_hardware);
+                    echo "<h3>Hardware Asignado</h3>";
+                    echo "<div class='results-info'>Se encontraron $num_hardware componente" . ($num_hardware != 1 ? 's' : '') . " de hardware</div>";
+                    echo "<div class='table-container'>";
+                    echo "<table>";
+                    echo "<thead>";
+                    echo "<tr><th>ID</th><th>Hardware</th><th>Capacidad</th><th>Velocidad</th><th>Observaciones</th><th>Acciones</th></tr>";
+                    echo "</thead>";
+                    echo "<tbody>";
                     while ($row = mysqli_fetch_assoc($result_hardware)) {
-                         "ID: " . $row["id"] . "<br>";
-                         "Nómina: " . $row["nomina"] . "<br>";
-                        echo "Hardware: " . $row["hardware"] . "<br>";
-                        echo "Capacidad: " . $row["capacidad"] . "<br>";
-                        echo "Velocidad: " . $row["velocidad"] . "<br>";
-                        echo "Observaciones: " . $row["observaciones"] . "<br>";
-                        echo "<a href='editar.php?hardware_id=" . $row["id"] . "'>Editar</a> | ";
-                        echo "<a href='eliminar.php?hardware_id=" . $row["id"] . "'>Eliminar</a><br>";
-                        echo "<hr>";
+                        echo "<tr>";
+                        echo "<td>" . $row["id"] . "</td>";
+                        echo "<td>" . $row["hardware"] . "</td>";
+                        echo "<td>" . $row["capacidad"] . "</td>";
+                        echo "<td>" . $row["velocidad"] . "</td>";
+                        echo "<td>" . $row["observaciones"] . "</td>";
+                        echo "<td><div class='action-links'>";
+                        echo "<a href='editar.php?hardware_id=" . $row["id"] . "' class='edit'>Editar</a>";
+                        echo "<a href='eliminar.php?hardware_id=" . $row["id"] . "' class='delete'>Eliminar</a>";
+                        echo "</div></td>";
+                        echo "</tr>";
                     }
+                    echo "</tbody>";
+                    echo "</table>";
+                    echo "</div>";
                 } else {
                     echo "<p>No se encontró ningún hardware asociado con la nómina $buscar_nomina.</p>";
                 }
@@ -253,25 +305,41 @@
                 $result_software = mysqli_query($conn, $sql_software);
 
                 if (mysqli_num_rows($result_software) > 0) {
-                    echo "<h3>Datos del software:</h3>";
+                    $num_software = mysqli_num_rows($result_software);
+                    echo "<h3>Software Asignado</h3>";
+                    echo "<div class='results-info'>Se encontraron $num_software programa" . ($num_software != 1 ? 's' : '') . " de software</div>";
+                    echo "<div class='table-container'>";
+                    echo "<table>";
+                    echo "<thead>";
+                    echo "<tr><th>ID</th><th>Programa</th><th>Versión</th><th>Release/Service Pack</th><th>Licencia</th><th>Acciones</th></tr>";
+                    echo "</thead>";
+                    echo "<tbody>";
                     while ($row = mysqli_fetch_assoc($result_software)) {
-                         "ID: " . $row["id"] . "<br>";
-                         "Nómina: " . $row["nomina"] . "<br>";
-                        echo "Programa: " . $row["programa"] . "<br>";
-                        echo "Versión: " . $row["version"] . "<br>";
-                        echo "Release/Service Pack: " . $row["release_service_pack"] . "<br>";
-                        echo "Licencia: " . $row["licencia"] . "<br>";
-                        echo "<a href='editar.php?software_id=" . $row["id"] . "'>Editar</a> | ";
-                        echo "<a href='eliminar.php?software_id=" . $row["id"] . "'>Eliminar</a><br>";
-                        echo "<hr>";
+                        echo "<tr>";
+                        echo "<td>" . $row["id"] . "</td>";
+                        echo "<td>" . $row["programa"] . "</td>";
+                        echo "<td>" . $row["version"] . "</td>";
+                        echo "<td>" . $row["release_service_pack"] . "</td>";
+                        echo "<td>" . $row["licencia"] . "</td>";
+                        echo "<td><div class='action-links'>";
+                        echo "<a href='editar.php?software_id=" . $row["id"] . "' class='edit'>Editar</a>";
+                        echo "<a href='eliminar.php?software_id=" . $row["id"] . "' class='delete'>Eliminar</a>";
+                        echo "</div></td>";
+                        echo "</tr>";
                     }
+                    echo "</tbody>";
+                    echo "</table>";
+                    echo "</div>";
                 } else {
                     echo "<p>No se encontró ningún software asociado con la nómina $buscar_nomina.</p>";
                 }
 
+                echo "<div style='margin-top: 20px; text-align: center;'>";
+                echo "<button onclick='exportToCSV()' class='btn-search' style='margin-right: 10px;'>Exportar Resultados</button>";
                 echo '<br><button onclick="window.location.href=\'index.php\'">Regresar</button>';
                 echo '<button onclick="window.history.back()">Buscar Otro</button>';
                 echo '<button onclick="window.location.href=\'inicio.html\'">Salir</button>';
+                echo "</div>";
 
                 // Cerrar la conexión a la base de datos
                 close_connection($conn);
