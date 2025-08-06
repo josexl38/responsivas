@@ -7,39 +7,43 @@
 
 body {
     font-family: Arial, sans-serif;
+    background-attachment: fixed;
     background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
     background-color: #000; /* Color de respaldo */
     color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    min-height: 100vh;
     margin: 0;
     padding: 0;
+    overflow-x: auto;
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 95%;
     margin: 0 auto;
     padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 .box {
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     padding: 20px;
     border-radius: 10px;
     text-align: center;
     animation: fadeIn 2s ease-in-out;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-    max-width: 90%;
     width: 100%;
-    max-width: 600px;
+    max-width: none;
     transition: all 0.3s ease;
+    margin: 20px 0;
+    min-height: auto;
 }
 
 .box:hover {
@@ -277,8 +281,8 @@ table {
     border-radius: 8px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    min-width: 800px; /* Asegurar ancho mínimo para desktop */
-    table-layout: auto; /* Permitir que las columnas se ajusten automáticamente */
+    table-layout: fixed;
+    font-size: 14px;
 }
 
 /* Contenedor de tabla con scroll horizontal */
@@ -288,53 +292,12 @@ table {
     margin: 20px 0;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    max-height: 70vh;
+    overflow-y: auto;
 }
 
-/* Estilos específicos para desktop */
-@media (min-width: 1024px) {
-    .table-container {
-        overflow-x: visible; /* En desktop no necesitamos scroll horizontal */
-    }
-    
-    table {
-        min-width: 100%;
-        width: 100%;
-    }
-    
-    th, td {
-        white-space: nowrap; /* Evitar que el texto se corte */
-        min-width: 120px; /* Ancho mínimo para cada columna */
-    }
-    
-    th:first-child, td:first-child {
-        min-width: 100px; /* Nómina */
-    }
-    
-    th:nth-child(2), td:nth-child(2) {
-        min-width: 150px; /* Nombre */
-    }
-    
-    th:nth-child(3), td:nth-child(3) {
-        min-width: 150px; /* Apellidos */
-    }
-    
-    th:nth-child(4), td:nth-child(4) {
-        min-width: 200px; /* Correo */
-    }
-    
-    th:nth-child(5), td:nth-child(5) {
-        min-width: 180px; /* Empresa */
-    }
-    
-    th:nth-child(6), td:nth-child(6) {
-        min-width: 150px; /* Departamento */
-    }
-    
-    th:last-child, td:last-child {
-        min-width: 120px; /* Acciones */
-    }
-}
 
 table, th, td {
     border: 1px solid #e0e0e0;
@@ -344,7 +307,10 @@ th, td {
     padding: 12px;
     text-align: left;
     transition: background-color 0.3s ease;
-    vertical-align: top; /* Alinear contenido al top */
+    vertical-align: middle;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 0;
 }
 
 th {
@@ -353,10 +319,22 @@ th {
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    font-size: 12px;
+    font-size: 11px;
     position: sticky; /* Hacer que el header se mantenga visible */
     top: 0;
     z-index: 10;
+    white-space: nowrap;
+}
+
+/* Distribución específica de columnas */
+th:nth-child(1), td:nth-child(1) { width: 8%; } /* Nómina */
+th:nth-child(2), td:nth-child(2) { width: 12%; } /* Nombre */
+th:nth-child(3), td:nth-child(3) { width: 15%; } /* Apellidos */
+th:nth-child(4), td:nth-child(4) { width: 20%; } /* Correo */
+th:nth-child(5), td:nth-child(5) { width: 20%; } /* Empresa */
+th:nth-child(6), td:nth-child(6) { width: 12%; } /* Departamento */
+th:nth-child(7), td:nth-child(7) { width: 8%; } /* Puesto */
+th:nth-child(8), td:nth-child(8) { width: 5%; } /* Acciones */
 }
 
 tr:nth-child(even) {
@@ -572,33 +550,48 @@ body[data-page="index"] {
 
 body[data-page="editar"] {
     background-image: url('camioneta.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
 }
 
 body[data-page="procesar_datos"] {
     background-image: url('golf.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
 }
 
 body[data-page="eliminar"] {
-    background-image: url('ibiza.jpg'); /* Cambia a la imagen de fondo que prefieras */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-image: url('ibiza.jpg');
 }
 
 /* Estilos responsivos */
 @media (max-width: 768px) {
+    body {
+        background-attachment: scroll; /* En móviles usar scroll para mejor rendimiento */
+    }
+    
+    .container {
+        max-width: 98%;
+        padding: 10px;
+    }
+    
+    .box {
+        padding: 15px;
+        margin: 10px 0;
+    }
+    
     .table-container {
-        overflow-x: auto; /* Mantener scroll horizontal en móviles */
+        max-height: 60vh;
+        font-size: 12px;
     }
     
     table {
-        min-width: 600px; /* Ancho mínimo menor para móviles */
+        font-size: 12px;
+    }
+    
+    th, td {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+    
+    th {
+        font-size: 10px;
     }
     
     .filter-row {
@@ -618,123 +611,87 @@ body[data-page="eliminar"] {
         flex-direction: column;
         gap: 5px;
     }
-
-    .container {
-        padding: 10px;
-        height: auto;
-        min-height: 100vh;
-    }
-
-    .box {
-        padding: 10px;
-        margin: 10px;
-        max-width: 95%;
-    }
-
-    form label, form input, form select, form textarea, form button {
-        font-size: 14px;
-    }
-
-    h1, h2 {
-        font-size: 20px; /* Reduce el tamaño del texto */
-    }
-
-    input, select, textarea {
-        max-width: 100%; /* Asegura que los inputs ocupen todo el ancho posible */
-        padding: 10px;
-    }
-
-    button {
-        padding: 10px 20px;
-        font-size: 14px;
-        margin: 3px;
-    }
-
-    .dropdown-content {
-        min-width: 140px;
-    }
-
-    table {
-        font-size: 12px;
-    }
-
-    th, td {
-        padding: 8px;
-    }
-
-    .toast {
-        right: 10px;
-        left: 10px;
-        top: 10px;
-    }
 }
 
 @media (max-width: 600px) {
+    .container {
+        max-width: 100%;
+        padding: 5px;
+    }
+    
+    .box {
+        padding: 10px;
+        margin: 5px 0;
+        border-radius: 8px;
+    }
+    
+    .table-container {
+        max-height: 50vh;
+        font-size: 11px;
+    }
+    
     table {
-        min-width: 500px;
+        font-size: 11px;
     }
     
     th, td {
-        padding: 6px;
-        font-size: 11px;
-        min-width: 80px;
+        padding: 6px 2px;
+        font-size: 10px;
     }
+    
+    th {
+        font-size: 9px;
+    }
+}
 
+@media (min-width: 1024px) {
+    .container {
+        max-width: 90%;
+    }
+    
     .box {
-        width: 100%;
-        padding: 12px;
-        margin: 5px;
+        padding: 30px;
+        margin: 30px 0;
     }
-
-    form label, form input, form select, form textarea, form button {
-        font-size: 12px; /* Reduce el tamaño del texto */
+    
+    .table-container {
+        max-height: 75vh;
     }
-
-    h1, h2 {
-        font-size: 18px; /* Reduce aún más el tamaño del texto */
+    
+    table {
+        font-size: 14px;
     }
-
-    input, select, textarea {
-        padding: 8px;
+    
+    th, td {
+        padding: 15px 10px;
     }
-
-    button {
-        padding: 8px 16px;
-        font-size: 12px;
-    }
-
-    .dropdown-btn {
-        padding: 8px 16px;
+    
+    th {
         font-size: 12px;
     }
 }
 
-@media (max-width: 480px) {
-    body {
-        height: auto;
-        min-height: 100vh;
-        align-items: flex-start;
-        padding-top: 20px;
-    }
-
+@media (min-width: 1440px) {
     .container {
-        height: auto;
-        align-items: flex-start;
+        max-width: 85%;
     }
-
-    .box {
-        margin: 0;
-        border-radius: 10px;
+    
+    .table-container {
+        max-height: 80vh;
     }
-
-    h1, h2 {
-        font-size: 16px;
-        margin-bottom: 15px;
+    
+    table {
+        font-size: 15px;
     }
-
-    form {
-        gap: 5px;
+    
+    th, td {
+        padding: 18px 12px;
     }
+    
+    th {
+        font-size: 13px;
+    }
+}
 
     label {
         font-size: 12px;
