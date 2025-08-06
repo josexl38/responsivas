@@ -164,7 +164,7 @@
 
                     if (mysqli_num_rows($result_trabajador) > 0) {
                         echo "<div class='results-info'>Se encontró 1 trabajador con la nómina: $buscar_nomina</div>";
-                        echo "<div class='table-container'>";
+                        echo "<div class='table-container search-results'>";
                         echo "<table>";
                         echo "<thead>";
                         echo "<tr><th>Nómina</th><th>Nombre</th><th>Apellidos</th><th>Correo</th><th>Empresa</th><th>Departamento</th><th>Puesto</th><th>Acciones</th></tr>";
@@ -201,7 +201,7 @@
 
                     if (mysqli_num_rows($result) > 0) {
                         echo "<div class='results-info'>Se encontraron $num_results trabajador" . ($num_results != 1 ? 'es' : '') . " con apellidos que contienen: $buscar_apellidos</div>";
-                        echo "<div class='table-container'>";
+                        echo "<div class='table-container search-results'>";
                         echo "<table>";
                         echo "<thead>";
                         echo "<tr><th>Nómina</th><th>Nombre</th><th>Apellidos</th><th>Correo</th><th>Empresa</th><th>Departamento</th><th>Puesto</th><th>Acciones</th></tr>";
@@ -240,7 +240,7 @@
                     $num_equipos = mysqli_num_rows($result_equipo);
                     echo "<h3>Equipos Asignados</h3>";
                     echo "<div class='results-info'>Se encontraron $num_equipos equipo" . ($num_equipos != 1 ? 's' : '') . " asignado" . ($num_equipos != 1 ? 's' : '') . "</div>";
-                    echo "<div class='table-container'>";
+                    echo "<div class='table-container search-results'>";
                     echo "<table>";
                     echo "<thead>";
                     echo "<tr><th>Tipo</th><th>Marca</th><th>Modelo</th><th>Número de Serie</th><th>Observaciones</th><th>Acciones</th></tr>";
@@ -274,7 +274,7 @@
                     $num_hardware = mysqli_num_rows($result_hardware);
                     echo "<h3>Hardware Asignado</h3>";
                     echo "<div class='results-info'>Se encontraron $num_hardware componente" . ($num_hardware != 1 ? 's' : '') . " de hardware</div>";
-                    echo "<div class='table-container'>";
+                    echo "<div class='table-container search-results'>";
                     echo "<table>";
                     echo "<thead>";
                     echo "<tr><th>ID</th><th>Hardware</th><th>Capacidad</th><th>Velocidad</th><th>Observaciones</th><th>Acciones</th></tr>";
@@ -308,7 +308,7 @@
                     $num_software = mysqli_num_rows($result_software);
                     echo "<h3>Software Asignado</h3>";
                     echo "<div class='results-info'>Se encontraron $num_software programa" . ($num_software != 1 ? 's' : '') . " de software</div>";
-                    echo "<div class='table-container'>";
+                    echo "<div class='table-container search-results'>";
                     echo "<table>";
                     echo "<thead>";
                     echo "<tr><th>ID</th><th>Programa</th><th>Versión</th><th>Release/Service Pack</th><th>Licencia</th><th>Acciones</th></tr>";
@@ -335,7 +335,6 @@
                 }
 
                 echo "<div style='margin-top: 20px; text-align: center;'>";
-                echo "<button onclick='exportToCSV()' class='btn-search' style='margin-right: 10px;'>Exportar Resultados</button>";
                 echo '<br><button onclick="window.location.href=\'index.php\'">Regresar</button>';
                 echo '<button onclick="window.history.back()">Buscar Otro</button>';
                 echo '<button onclick="window.location.href=\'inicio.html\'">Salir</button>';

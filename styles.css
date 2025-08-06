@@ -39,8 +39,8 @@ body {
     text-align: center;
     animation: fadeIn 2s ease-in-out;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-    width: 100%;
-    max-width: none;
+    width: auto;
+    max-width: 800px;
     transition: all 0.3s ease;
     margin: 20px 0;
     min-height: auto;
@@ -274,7 +274,7 @@ button:active {
 }
 
 /* Estilos para las tablas */
-table {
+.search-results table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
@@ -282,6 +282,38 @@ table {
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     table-layout: fixed;
+    font-size: 14px;
+}
+
+.search-results .table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(5px);
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.search-results th:nth-child(1), .search-results td:nth-child(1) { width: 8%; } /* Nómina */
+.search-results th:nth-child(2), .search-results td:nth-child(2) { width: 12%; } /* Nombre */
+.search-results th:nth-child(3), .search-results td:nth-child(3) { width: 15%; } /* Apellidos */
+.search-results th:nth-child(4), .search-results td:nth-child(4) { width: 20%; } /* Correo */
+.search-results th:nth-child(5), .search-results td:nth-child(5) { width: 20%; } /* Empresa */
+.search-results th:nth-child(6), .search-results td:nth-child(6) { width: 12%; } /* Departamento */
+.search-results th:nth-child(7), .search-results td:nth-child(7) { width: 8%; } /* Puesto */
+.search-results th:nth-child(8), .search-results td:nth-child(8) { width: 5%; } /* Acciones */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    table-layout: auto;
     font-size: 14px;
 }
 
@@ -294,8 +326,8 @@ table {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(5px);
-    max-height: 70vh;
-    overflow-y: auto;
+    max-height: none;
+    overflow-y: visible;
 }
 
 
@@ -320,22 +352,10 @@ th {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-size: 11px;
-    position: sticky; /* Hacer que el header se mantenga visible */
-    top: 0;
-    z-index: 10;
+    position: static;
     white-space: nowrap;
 }
 
-/* Distribución específica de columnas */
-th:nth-child(1), td:nth-child(1) { width: 8%; } /* Nómina */
-th:nth-child(2), td:nth-child(2) { width: 12%; } /* Nombre */
-th:nth-child(3), td:nth-child(3) { width: 15%; } /* Apellidos */
-th:nth-child(4), td:nth-child(4) { width: 20%; } /* Correo */
-th:nth-child(5), td:nth-child(5) { width: 20%; } /* Empresa */
-th:nth-child(6), td:nth-child(6) { width: 12%; } /* Departamento */
-th:nth-child(7), td:nth-child(7) { width: 8%; } /* Puesto */
-th:nth-child(8), td:nth-child(8) { width: 5%; } /* Acciones */
-}
 
 tr:nth-child(even) {
     background-color: rgba(52, 152, 219, 0.05);

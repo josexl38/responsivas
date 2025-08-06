@@ -74,8 +74,8 @@ function initializeValidation() {
     nominaInputs.forEach(input => {
         input.addEventListener('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
-            if (this.value.length > 0 && this.value.length < 4) {
-                this.setCustomValidity('La nómina debe tener al menos 4 dígitos');
+            if (this.value.length > 0 && this.value.length < 2) {
+                this.setCustomValidity('La nómina debe tener al menos 2 dígitos');
             } else {
                 this.setCustomValidity('');
             }
@@ -177,8 +177,8 @@ function validarGeneracionPDF(nomina) {
         return false;
     }
     
-    if (nomina.length < 4) {
-        showToast('La nómina debe tener al menos 4 dígitos', 'error');
+    if (nomina.length < 2) {
+        showToast('La nómina debe tener al menos 2 dígitos', 'error');
         return false;
     }
     
@@ -325,8 +325,8 @@ function enhanceSearchForm(form) {
     if (visibleNomina) {
         visibleNomina.addEventListener('input', function() {
             this.value = this.value.replace(/[^0-9]/g, '');
-            if (this.value && this.value.length < 3) {
-                this.setCustomValidity('Ingrese al menos 3 dígitos');
+            if (this.value && this.value.length < 2) {
+                this.setCustomValidity('Ingrese al menos 2 dígitos');
             } else {
                 this.setCustomValidity('');
             }
