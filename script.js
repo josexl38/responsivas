@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Validación de nómina (solo números, mínimo 4 dígitos)
     function validateNomina(input) {
         const value = input.value.trim();
-        const isValid = /^\d{4,}$/.test(value);
+        const isValid = /^\d{2,}$/.test(value);
         
         if (value === '') {
             input.classList.remove('field-valid', 'field-invalid');
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             input.classList.add('field-invalid');
             input.classList.remove('field-valid');
-            showValidationMessage(input, 'La nómina debe contener solo números y mínimo 4 dígitos', 'error');
+            showValidationMessage(input, 'La nómina debe contener solo números y mínimo 2 dígitos', 'error');
         }
         
         return isValid || value === '';
@@ -246,61 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Exportar resultados a CSV
-    function exportToCSV(tableId, filename = 'resultados.csv') {
-        const table = document.getElementById(tableId) || document.querySelector('table');
-        if (!table) {
-            showToast('No hay tabla para exportar', 'error');
-            return;
-        }
-        
-        let csv = [];
-        const rows = table.querySelectorAll('tr');
-        
-        rows.forEach(row => {
-            const cols = row.querySelectorAll('td, th');
-            const rowData = [];
-            
-            cols.forEach(col => {
-                // Limpiar el texto y escapar comillas
-                let text = col.textContent.trim().replace(/"/g, '""');
-                rowData.push(`"${text}"`);
-            });
-            
-            csv.push(rowData.join(','));
-        });
-        
-        // Crear y descargar archivo
-        const csvContent = csv.join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showToast('Archivo CSV descargado exitosamente', 'success');
-        }
-    }
-    
-    // Agregar botón de exportación si hay tablas
-    const tables = document.querySelectorAll('table');
-    if (tables.length > 0) {
-        tables.forEach((table, index) => {
-            const exportBtn = document.createElement('button');
-            exportBtn.type = 'button';
-            exportBtn.className = 'btn btn-secondary';
-            exportBtn.innerHTML = '📊 Exportar CSV';
-            exportBtn.onclick = () => exportToCSV(null, `resultados_${index + 1}.csv`);
-            
-            // Insertar botón antes de la tabla
-            table.parentNode.insertBefore(exportBtn, table);
-        });
-    }
+    // Función de exportar removida según solicitud del usuario
     
     // Contador de resultados
     function updateResultsCounter() {
