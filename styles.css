@@ -521,3 +521,53 @@ tr:nth-child(even) {
     color: var(--danger-color);
     background: rgba(239, 68, 68, 0.1);
 }
+
+/* Alertas del sistema */
+.alert {
+    padding: 15px 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    border-left: 4px solid;
+    font-weight: 500;
+}
+
+.alert h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+}
+
+.alert p {
+    margin: 5px 0;
+}
+
+.alert ul {
+    margin: 10px 0 10px 20px;
+}
+
+.alert li {
+    margin: 5px 0;
+}
+
+.alert-success {
+    background-color: #f0f9ff;
+    border-left-color: var(--success-color);
+    color: #065f46;
+}
+
+.alert-error {
+    background-color: #fef2f2;
+    border-left-color: var(--danger-color);
+    color: #991b1b;
+}
+
+.alert-warning {
+    background-color: #fffbeb;
+    border-left-color: var(--warning-color);
+    color: #92400e;
+}
+
+.alert-info {
+    background-color: #eff6ff;
+    border-left-color: #3b82f6;
+    color: #1e40af;
+}

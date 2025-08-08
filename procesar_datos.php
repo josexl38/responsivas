@@ -1,4 +1,9 @@
 <?php include 'session_check.php'; ?>
+<?php 
+require_once 'error_handler.php';
+require_once 'database.php';
+require_once 'validator.php';
+?>
 
 <!DOCTYPE html>
 <html lang="es">
@@ -12,6 +17,7 @@
     <div class="container">
         <div class="box">
             <?php
+            try {
             function close_connection($conn) {
                 if ($conn && !$conn->connect_error) {
                     mysqli_close($conn);
@@ -19,119 +25,172 @@
             }
 
             if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                // Conectar a la base de datos MySQL
-                include 'config.php';
-                $conn = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
-
-                // Comprobar la conexión
-                if (!$conn) {
-                    die("<p>Error de conexión: " . mysqli_connect_error() . "</p>");
-                }
+                $db = Database::getInstance();
+                $conn = $db->getConnection();
 
                 $action = $_POST['action'];
+                
+                // Sanitizar datos de entrada
+                $_POST = Validator::sanitize($_POST);
 
                 if ($action == 'agregar_usuario') {
-                    // Recibir y limpiar los datos del formulario
-                    $nomina = mysqli_real_escape_string($conn, $_POST["nomina"]);
-                    $nombre = mysqli_real_escape_string($conn, $_POST["nombre"]);
-                    $apellido = mysqli_real_escape_string($conn, $_POST["apellido"]);
-                    $correo = mysqli_real_escape_string($conn, $_POST["correo"]);
-                    $empresa = mysqli_real_escape_string($conn, $_POST["empresa"]);
-                    $departamento = mysqli_real_escape_string($conn, $_POST["departamento"]);
-                    $puesto = mysqli_real_escape_string($conn, $_POST["puesto"]);
-
-                    // Verificar si la nómina ya existe
-                    $check_nomina = "SELECT * FROM trabajador WHERE nomina = '$nomina'";
-                    $result = mysqli_query($conn, $check_nomina);
-
-                    if (mysqli_num_rows($result) > 0) {
-                        echo "<p>Error: El trabajador con la nómina $nomina ya está registrado.</p>";
+                    // Validar datos
+                    $validator = new Validator($_POST);
+                    $validator->validate('nomina', ['required', 'nomina', 'unique:trabajador,nomina'])
+                             ->validate('nombre', ['required', 'min_length:2', 'max_length:100'])
+                             ->validate('apellido', ['required', 'min_length:2', 'max_length:100'])
+                             ->validate('correo', ['required', 'email', 'unique:trabajador,correo'])
+                             ->validate('empresa', ['required'])
+                             ->validate('departamento', ['required'])
+                             ->validate('puesto', ['required']);
+                    
+                    if ($validator->fails()) {
+                        echo "<div class='alert alert-error'>";
+                        echo "<h3>Errores de validación:</h3>";
+                        echo "<ul>";
+                        foreach ($validator->getErrors() as $field => $errors) {
+                            foreach ($errors as $error) {
+                                echo "<li>{$error}</li>";
+                            }
+                        }
+                        echo "</ul>";
+                        echo "</div>";
                     } else {
-                        // Preparar la consulta SQL para insertar datos
-                        $sql = "INSERT INTO trabajador (nomina, nombre, apellidos, correo, empresa, departamento, puesto) VALUES ('$nomina', '$nombre', '$apellido', '$correo', '$empresa', '$departamento', '$puesto')";
-
-                        // Ejecutar la consulta SQL
-                        if (mysqli_query($conn, $sql)) {
-                            echo "<p>Registro de usuario creado exitosamente.</p>";
-                        } else {
-                            echo "<p>Error al crear el registro: " . mysqli_error($conn) . "</p>";
+                        try {
+                            $data = [
+                                'nomina' => $_POST['nomina'],
+                                'nombre' => $_POST['nombre'],
+                                'apellidos' => $_POST['apellido'],
+                                'correo' => $_POST['correo'],
+                                'empresa' => $_POST['empresa'],
+                                'departamento' => $_POST['departamento'],
+                                'puesto' => $_POST['puesto']
+                            ];
+                            
+                            $insertId = $db->insert('trabajador', $data);
+                            echo "<div class='alert alert-success'>";
+                            echo "<p>✅ Registro de usuario creado exitosamente (ID: {$insertId})</p>";
+                            echo "</div>";
+                        } catch (Exception $e) {
+                            echo "<div class='alert alert-error'>";
+                            echo "<p>❌ Error al crear el registro: " . $e->getMessage() . "</p>";
+                            echo "</div>";
                         }
                     }
                 } elseif ($action == 'agregar_equipo') {
-                    // Recibir y limpiar los datos del formulario
-                    $nomina = mysqli_real_escape_string($conn, $_POST["nomina"]);
-                    $tipo = mysqli_real_escape_string($conn, $_POST["tipo"]);
-                    $marca = mysqli_real_escape_string($conn, $_POST["marca"]);
-                    $modelo = mysqli_real_escape_string($conn, $_POST["modelo"]);
-                    $numero_serie = mysqli_real_escape_string($conn, $_POST["numero_serie"]);
-                    $observaciones = mysqli_real_escape_string($conn, $_POST["observaciones"]);
-
-                    // Verificar si la nómina existe en la tabla trabajador
-                    $check_nomina = "SELECT * FROM trabajador WHERE nomina = '$nomina'";
-                    $result = mysqli_query($conn, $check_nomina);
-
-                    if (mysqli_num_rows($result) > 0) {
-                        // Preparar la consulta SQL para insertar datos de equipo
-                        $sql = "INSERT INTO equipo (nomina, tipo, marca, modelo, numero_serie, observaciones) VALUES ('$nomina', '$tipo', '$marca', '$modelo', '$numero_serie', '$observaciones')";
-
-                        // Ejecutar la consulta SQL
-                        if (mysqli_query($conn, $sql)) {
-                            echo "<p>Registro de equipo creado exitosamente.</p>";
-                        } else {
-                            echo "<p>Error al crear el registro de equipo: " . mysqli_error($conn) . "</p>";
+                    // Validar datos
+                    $validator = new Validator($_POST);
+                    $validator->validate('nomina', ['required', 'nomina', 'exists:trabajador,nomina'])
+                             ->validate('tipo', ['required'])
+                             ->validate('marca', ['required'])
+                             ->validate('modelo', ['required'])
+                             ->validate('numero_serie', ['required', 'unique:equipo,numero_serie']);
+                    
+                    if ($validator->fails()) {
+                        echo "<div class='alert alert-error'>";
+                        echo "<h3>Errores de validación:</h3>";
+                        echo "<ul>";
+                        foreach ($validator->getErrors() as $field => $errors) {
+                            foreach ($errors as $error) {
+                                echo "<li>{$error}</li>";
+                            }
                         }
+                        echo "</ul>";
+                        echo "</div>";
                     } else {
-                        echo "<p>Error: No existe un trabajador con la nómina $nomina.</p>";
+                        try {
+                            $data = [
+                                'nomina' => $_POST['nomina'],
+                                'tipo' => $_POST['tipo'],
+                                'marca' => $_POST['marca'],
+                                'modelo' => $_POST['modelo'],
+                                'numero_serie' => strtoupper($_POST['numero_serie']),
+                                'observaciones' => $_POST['observaciones']
+                            ];
+                            
+                            $insertId = $db->insert('equipo', $data);
+                            echo "<div class='alert alert-success'>";
+                            echo "<p>✅ Registro de equipo creado exitosamente (ID: {$insertId})</p>";
+                            echo "</div>";
+                        } catch (Exception $e) {
+                            echo "<div class='alert alert-error'>";
+                            echo "<p>❌ Error al crear el registro de equipo: " . $e->getMessage() . "</p>";
+                            echo "</div>";
+                        }
                     }
                 } elseif ($action == 'agregar_hardware') {
-                    // Recibir y limpiar los datos del formulario
-                    $nomina = mysqli_real_escape_string($conn, $_POST["nomina"]);
-                    $hardware = mysqli_real_escape_string($conn, $_POST["hardware"]);
-                    $capacidad = mysqli_real_escape_string($conn, $_POST["capacidad"]);
-                    $velocidad = mysqli_real_escape_string($conn, $_POST["velocidad"]);
-                    $observaciones = mysqli_real_escape_string($conn, $_POST["observaciones"]);
-
-                    // Verificar si la nómina existe en la tabla trabajador
-                    $check_nomina = "SELECT * FROM trabajador WHERE nomina = '$nomina'";
-                    $result = mysqli_query($conn, $check_nomina);
-
-                    if (mysqli_num_rows($result) > 0) {
-                        // Preparar la consulta SQL para insertar datos de hardware
-                        $sql = "INSERT INTO hardware (nomina, hardware, capacidad, velocidad, observaciones) VALUES ('$nomina', '$hardware', '$capacidad', '$velocidad', '$observaciones')";
-
-                        // Ejecutar la consulta SQL
-                        if (mysqli_query($conn, $sql)) {
-                            echo "<p>Registro de hardware creado exitosamente.</p>";
-                        } else {
-                            echo "<p>Error al crear el registro de hardware: " . mysqli_error($conn) . "</p>";
+                    // Validar datos
+                    $validator = new Validator($_POST);
+                    $validator->validate('nomina', ['required', 'nomina', 'exists:trabajador,nomina'])
+                             ->validate('hardware', ['required']);
+                    
+                    if ($validator->fails()) {
+                        echo "<div class='alert alert-error'>";
+                        echo "<h3>Errores de validación:</h3>";
+                        echo "<ul>";
+                        foreach ($validator->getErrors() as $field => $errors) {
+                            foreach ($errors as $error) {
+                                echo "<li>{$error}</li>";
+                            }
                         }
+                        echo "</ul>";
+                        echo "</div>";
                     } else {
-                        echo "<p>Error: No existe un trabajador con la nómina $nomina.</p>";
+                        try {
+                            $data = [
+                                'nomina' => $_POST['nomina'],
+                                'hardware' => $_POST['hardware'],
+                                'capacidad' => $_POST['capacidad'],
+                                'velocidad' => $_POST['velocidad'],
+                                'observaciones' => $_POST['observaciones']
+                            ];
+                            
+                            $insertId = $db->insert('hardware', $data);
+                            echo "<div class='alert alert-success'>";
+                            echo "<p>✅ Registro de hardware creado exitosamente (ID: {$insertId})</p>";
+                            echo "</div>";
+                        } catch (Exception $e) {
+                            echo "<div class='alert alert-error'>";
+                            echo "<p>❌ Error al crear el registro de hardware: " . $e->getMessage() . "</p>";
+                            echo "</div>";
+                        }
                     }
                 } elseif ($action == 'agregar_software') {
-                    // Recibir y limpiar los datos del formulario
-                    $nomina = mysqli_real_escape_string($conn, $_POST["nomina"]);
-                    $programa = mysqli_real_escape_string($conn, $_POST["programa"]);
-                    $version = mysqli_real_escape_string($conn, $_POST["version"]);
-                    $release_service_pack = mysqli_real_escape_string($conn, $_POST["release_service_pack"]);
-                    $licencia = mysqli_real_escape_string($conn, $_POST["licencia"]);
-
-                    // Verificar si la nómina existe en la tabla trabajador
-                    $check_nomina = "SELECT * FROM trabajador WHERE nomina = '$nomina'";
-                    $result = mysqli_query($conn, $check_nomina);
-
-                    if (mysqli_num_rows($result) > 0) {
-                        // Preparar la consulta SQL para insertar datos de software
-                        $sql = "INSERT INTO software (nomina, programa, version, release_service_pack, licencia) VALUES ('$nomina', '$programa', '$version', '$release_service_pack', '$licencia')";
-
-                        // Ejecutar la consulta SQL
-                        if (mysqli_query($conn, $sql)) {
-                            echo "<p>Registro de software creado exitosamente.</p>";
-                        } else {
-                            echo "<p>Error al crear el registro de software: " . mysqli_error($conn) . "</p>";
+                    // Validar datos
+                    $validator = new Validator($_POST);
+                    $validator->validate('nomina', ['required', 'nomina', 'exists:trabajador,nomina'])
+                             ->validate('programa', ['required']);
+                    
+                    if ($validator->fails()) {
+                        echo "<div class='alert alert-error'>";
+                        echo "<h3>Errores de validación:</h3>";
+                        echo "<ul>";
+                        foreach ($validator->getErrors() as $field => $errors) {
+                            foreach ($errors as $error) {
+                                echo "<li>{$error}</li>";
+                            }
                         }
+                        echo "</ul>";
+                        echo "</div>";
                     } else {
-                        echo "<p>Error: No existe un trabajador con la nómina $nomina.</p>";
+                        try {
+                            $data = [
+                                'nomina' => $_POST['nomina'],
+                                'programa' => $_POST['programa'],
+                                'version' => $_POST['version'],
+                                'release_service_pack' => $_POST['release_service_pack'],
+                                'licencia' => $_POST['licencia']
+                            ];
+                            
+                            $insertId = $db->insert('software', $data);
+                            echo "<div class='alert alert-success'>";
+                            echo "<p>✅ Registro de software creado exitosamente (ID: {$insertId})</p>";
+                            echo "</div>";
+                        } catch (Exception $e) {
+                            echo "<div class='alert alert-error'>";
+                            echo "<p>❌ Error al crear el registro de software: " . $e->getMessage() . "</p>";
+                            echo "</div>";
+                        }
                     }
                 }
 
@@ -141,28 +200,25 @@
                 echo '<button onclick="window.location.href=\'inicio.html\'">Salir</button>';
 
                 // Cerrar la conexión a la base de datos
-                close_connection($conn);
+                // La conexión se cierra automáticamente
             } elseif ($_SERVER["REQUEST_METHOD"] == "GET") {
-                // Conectar a la base de datos MySQL
-                include 'config.php';
-                $conn = mysqli_connect($dbhost, $dbuser, $dbpass, $dbname);
+                $db = Database::getInstance();
+                $conn = $db->getConnection();
 
-                // Comprobar la conexión
-                if (!$conn) {
-                    die("<p>Error de conexión: " . mysqli_connect_error() . "</p>");
-                }
-
-                $buscar_nomina = mysqli_real_escape_string($conn, $_GET["buscar_nomina"]);
-                $buscar_apellidos = mysqli_real_escape_string($conn, $_GET["buscar_apellidos"]);
+                // Sanitizar datos de entrada
+                $_GET = Validator::sanitize($_GET);
+                
+                $buscar_nomina = $_GET["buscar_nomina"] ?? '';
+                $buscar_apellidos = $_GET["buscar_apellidos"] ?? '';
 
                 if (!empty($buscar_nomina)) {
                     // Realizar la búsqueda por nómina
-                    $sql_trabajador = "SELECT * FROM trabajador WHERE nomina = '$buscar_nomina'";
-                    $result_trabajador = mysqli_query($conn, $sql_trabajador);
+                    $sql_trabajador = "SELECT * FROM trabajador WHERE nomina = ?";
+                    $result_trabajador = $db->query($sql_trabajador, [$buscar_nomina]);
 
                     echo "<h2>Resultados de búsqueda para Nómina: $buscar_nomina</h2>";
 
-                    if (mysqli_num_rows($result_trabajador) > 0) {
+                    if ($result_trabajador->num_rows > 0) {
                         echo "<div class='results-info'>Se encontró 1 trabajador con la nómina: $buscar_nomina</div>";
                         echo "<div class='table-container search-results'>";
                         echo "<table>";
@@ -170,7 +226,7 @@
                         echo "<tr><th>Nómina</th><th>Nombre</th><th>Apellidos</th><th>Correo</th><th>Empresa</th><th>Departamento</th><th>Puesto</th><th>Acciones</th></tr>";
                         echo "</thead>";
                         echo "<tbody>";
-                        while ($row = mysqli_fetch_assoc($result_trabajador)) {
+                        while ($row = $result_trabajador->fetch_assoc()) {
                             echo "<tr>";
                             echo "<td>" . $row["nomina"] . "</td>";
                             echo "<td>" . $row["nombre"] . "</td>";
@@ -193,13 +249,13 @@
                     }
                 } elseif (!empty($buscar_apellidos)) {
                     // Realizar la búsqueda por apellidos
-                    $sql = "SELECT * FROM trabajador WHERE apellidos LIKE '%$buscar_apellidos%'";
-                    $result = mysqli_query($conn, $sql);
+                    $sql = "SELECT * FROM trabajador WHERE apellidos LIKE ?";
+                    $result = $db->query($sql, ["%{$buscar_apellidos}%"]);
 
-                    $num_results = mysqli_num_rows($result);
+                    $num_results = $result->num_rows;
                     echo "<h2>Resultados de búsqueda para Apellidos: $buscar_apellidos</h2>";
 
-                    if (mysqli_num_rows($result) > 0) {
+                    if ($result->num_rows > 0) {
                         echo "<div class='results-info'>Se encontraron $num_results trabajador" . ($num_results != 1 ? 'es' : '') . " con apellidos que contienen: $buscar_apellidos</div>";
                         echo "<div class='table-container search-results'>";
                         echo "<table>";
@@ -207,7 +263,7 @@
                         echo "<tr><th>Nómina</th><th>Nombre</th><th>Apellidos</th><th>Correo</th><th>Empresa</th><th>Departamento</th><th>Puesto</th><th>Acciones</th></tr>";
                         echo "</thead>";
                         echo "<tbody>";
-                        while ($row = mysqli_fetch_assoc($result)) {
+                        while ($row = $result->fetch_assoc()) {
                             echo "<tr>";
                             echo "<td>" . $row["nomina"] . "</td>";
                             echo "<td>" . $row["nombre"] . "</td>";
@@ -233,105 +289,107 @@
                 }
 
                 // Buscar en la tabla equipo
-                $sql_equipo = "SELECT * FROM equipo WHERE nomina = '$buscar_nomina'";
-                $result_equipo = mysqli_query($conn, $sql_equipo);
+                if (!empty($buscar_nomina)) {
+                    $sql_equipo = "SELECT * FROM equipo WHERE nomina = ?";
+                    $result_equipo = $db->query($sql_equipo, [$buscar_nomina]);
 
-                if (mysqli_num_rows($result_equipo) > 0) {
-                    $num_equipos = mysqli_num_rows($result_equipo);
-                    echo "<h3>Equipos Asignados</h3>";
-                    echo "<div class='results-info'>Se encontraron $num_equipos equipo" . ($num_equipos != 1 ? 's' : '') . " asignado" . ($num_equipos != 1 ? 's' : '') . "</div>";
-                    echo "<div class='table-container search-results'>";
-                    echo "<table>";
-                    echo "<thead>";
-                    echo "<tr><th>Tipo</th><th>Marca</th><th>Modelo</th><th>Número de Serie</th><th>Observaciones</th><th>Acciones</th></tr>";
-                    echo "</thead>";
-                    echo "<tbody>";
-                    while ($row = mysqli_fetch_assoc($result_equipo)) {
-                        echo "<tr>";
-                        echo "<td>" . $row["tipo"] . "</td>";
-                        echo "<td>" . $row["marca"] . "</td>";
-                        echo "<td>" . $row["modelo"] . "</td>";
-                        echo "<td>" . $row["numero_serie"] . "</td>";
-                        echo "<td>" . $row["observaciones"] . "</td>";
-                        echo "<td><div class='action-links'>";
-                        echo "<a href='editar.php?numero_serie=" . $row["numero_serie"] . "' class='edit'>Editar</a>";
-                        echo "<a href='eliminar.php?numero_serie=" . $row["numero_serie"] . "' class='delete'>Eliminar</a>";
-                        echo "</div></td>";
-                        echo "</tr>";
+                    if ($result_equipo->num_rows > 0) {
+                        $num_equipos = $result_equipo->num_rows;
+                        echo "<h3>Equipos Asignados</h3>";
+                        echo "<div class='results-info'>Se encontraron $num_equipos equipo" . ($num_equipos != 1 ? 's' : '') . " asignado" . ($num_equipos != 1 ? 's' : '') . "</div>";
+                        echo "<div class='table-container search-results'>";
+                        echo "<table>";
+                        echo "<thead>";
+                        echo "<tr><th>Tipo</th><th>Marca</th><th>Modelo</th><th>Número de Serie</th><th>Observaciones</th><th>Acciones</th></tr>";
+                        echo "</thead>";
+                        echo "<tbody>";
+                        while ($row = $result_equipo->fetch_assoc()) {
+                            echo "<tr>";
+                            echo "<td>" . $row["tipo"] . "</td>";
+                            echo "<td>" . $row["marca"] . "</td>";
+                            echo "<td>" . $row["modelo"] . "</td>";
+                            echo "<td>" . $row["numero_serie"] . "</td>";
+                            echo "<td>" . $row["observaciones"] . "</td>";
+                            echo "<td><div class='action-links'>";
+                            echo "<a href='editar.php?numero_serie=" . $row["numero_serie"] . "' class='edit'>Editar</a>";
+                            echo "<a href='eliminar.php?numero_serie=" . $row["numero_serie"] . "' class='delete'>Eliminar</a>";
+                            echo "</div></td>";
+                            echo "</tr>";
+                        }
+                        echo "</tbody>";
+                        echo "</table>";
+                        echo "</div>";
+                    } else {
+                        echo "<p>No se encontró ningún equipo asociado con la nómina $buscar_nomina.</p>";
                     }
-                    echo "</tbody>";
-                    echo "</table>";
-                    echo "</div>";
-                } else {
-                    echo "<p>No se encontró ningún equipo asociado con la nómina $buscar_nomina.</p>";
-                }
 
                 // Buscar en la tabla hardware
-                $sql_hardware = "SELECT * FROM hardware WHERE nomina = '$buscar_nomina'";
-                $result_hardware = mysqli_query($conn, $sql_hardware);
+                    $sql_hardware = "SELECT * FROM hardware WHERE nomina = ?";
+                    $result_hardware = $db->query($sql_hardware, [$buscar_nomina]);
 
-                if (mysqli_num_rows($result_hardware) > 0) {
-                    $num_hardware = mysqli_num_rows($result_hardware);
-                    echo "<h3>Hardware Asignado</h3>";
-                    echo "<div class='results-info'>Se encontraron $num_hardware componente" . ($num_hardware != 1 ? 's' : '') . " de hardware</div>";
-                    echo "<div class='table-container search-results'>";
-                    echo "<table>";
-                    echo "<thead>";
-                    echo "<tr><th>ID</th><th>Hardware</th><th>Capacidad</th><th>Velocidad</th><th>Observaciones</th><th>Acciones</th></tr>";
-                    echo "</thead>";
-                    echo "<tbody>";
-                    while ($row = mysqli_fetch_assoc($result_hardware)) {
-                        echo "<tr>";
-                        echo "<td>" . $row["id"] . "</td>";
-                        echo "<td>" . $row["hardware"] . "</td>";
-                        echo "<td>" . $row["capacidad"] . "</td>";
-                        echo "<td>" . $row["velocidad"] . "</td>";
-                        echo "<td>" . $row["observaciones"] . "</td>";
-                        echo "<td><div class='action-links'>";
-                        echo "<a href='editar.php?hardware_id=" . $row["id"] . "' class='edit'>Editar</a>";
-                        echo "<a href='eliminar.php?hardware_id=" . $row["id"] . "' class='delete'>Eliminar</a>";
-                        echo "</div></td>";
-                        echo "</tr>";
+                    if ($result_hardware->num_rows > 0) {
+                        $num_hardware = $result_hardware->num_rows;
+                        echo "<h3>Hardware Asignado</h3>";
+                        echo "<div class='results-info'>Se encontraron $num_hardware componente" . ($num_hardware != 1 ? 's' : '') . " de hardware</div>";
+                        echo "<div class='table-container search-results'>";
+                        echo "<table>";
+                        echo "<thead>";
+                        echo "<tr><th>ID</th><th>Hardware</th><th>Capacidad</th><th>Velocidad</th><th>Observaciones</th><th>Acciones</th></tr>";
+                        echo "</thead>";
+                        echo "<tbody>";
+                        while ($row = $result_hardware->fetch_assoc()) {
+                            echo "<tr>";
+                            echo "<td>" . $row["id"] . "</td>";
+                            echo "<td>" . $row["hardware"] . "</td>";
+                            echo "<td>" . $row["capacidad"] . "</td>";
+                            echo "<td>" . $row["velocidad"] . "</td>";
+                            echo "<td>" . $row["observaciones"] . "</td>";
+                            echo "<td><div class='action-links'>";
+                            echo "<a href='editar.php?hardware_id=" . $row["id"] . "' class='edit'>Editar</a>";
+                            echo "<a href='eliminar.php?hardware_id=" . $row["id"] . "' class='delete'>Eliminar</a>";
+                            echo "</div></td>";
+                            echo "</tr>";
+                        }
+                        echo "</tbody>";
+                        echo "</table>";
+                        echo "</div>";
+                    } else {
+                        echo "<p>No se encontró ningún hardware asociado con la nómina $buscar_nomina.</p>";
                     }
-                    echo "</tbody>";
-                    echo "</table>";
-                    echo "</div>";
-                } else {
-                    echo "<p>No se encontró ningún hardware asociado con la nómina $buscar_nomina.</p>";
-                }
 
                 // Buscar en la tabla software
-                $sql_software = "SELECT * FROM software WHERE nomina = '$buscar_nomina'";
-                $result_software = mysqli_query($conn, $sql_software);
+                    $sql_software = "SELECT * FROM software WHERE nomina = ?";
+                    $result_software = $db->query($sql_software, [$buscar_nomina]);
 
-                if (mysqli_num_rows($result_software) > 0) {
-                    $num_software = mysqli_num_rows($result_software);
-                    echo "<h3>Software Asignado</h3>";
-                    echo "<div class='results-info'>Se encontraron $num_software programa" . ($num_software != 1 ? 's' : '') . " de software</div>";
-                    echo "<div class='table-container search-results'>";
-                    echo "<table>";
-                    echo "<thead>";
-                    echo "<tr><th>ID</th><th>Programa</th><th>Versión</th><th>Release/Service Pack</th><th>Licencia</th><th>Acciones</th></tr>";
-                    echo "</thead>";
-                    echo "<tbody>";
-                    while ($row = mysqli_fetch_assoc($result_software)) {
-                        echo "<tr>";
-                        echo "<td>" . $row["id"] . "</td>";
-                        echo "<td>" . $row["programa"] . "</td>";
-                        echo "<td>" . $row["version"] . "</td>";
-                        echo "<td>" . $row["release_service_pack"] . "</td>";
-                        echo "<td>" . $row["licencia"] . "</td>";
-                        echo "<td><div class='action-links'>";
-                        echo "<a href='editar.php?software_id=" . $row["id"] . "' class='edit'>Editar</a>";
-                        echo "<a href='eliminar.php?software_id=" . $row["id"] . "' class='delete'>Eliminar</a>";
-                        echo "</div></td>";
-                        echo "</tr>";
+                    if ($result_software->num_rows > 0) {
+                        $num_software = $result_software->num_rows;
+                        echo "<h3>Software Asignado</h3>";
+                        echo "<div class='results-info'>Se encontraron $num_software programa" . ($num_software != 1 ? 's' : '') . " de software</div>";
+                        echo "<div class='table-container search-results'>";
+                        echo "<table>";
+                        echo "<thead>";
+                        echo "<tr><th>ID</th><th>Programa</th><th>Versión</th><th>Release/Service Pack</th><th>Licencia</th><th>Acciones</th></tr>";
+                        echo "</thead>";
+                        echo "<tbody>";
+                        while ($row = $result_software->fetch_assoc()) {
+                            echo "<tr>";
+                            echo "<td>" . $row["id"] . "</td>";
+                            echo "<td>" . $row["programa"] . "</td>";
+                            echo "<td>" . $row["version"] . "</td>";
+                            echo "<td>" . $row["release_service_pack"] . "</td>";
+                            echo "<td>" . $row["licencia"] . "</td>";
+                            echo "<td><div class='action-links'>";
+                            echo "<a href='editar.php?software_id=" . $row["id"] . "' class='edit'>Editar</a>";
+                            echo "<a href='eliminar.php?software_id=" . $row["id"] . "' class='delete'>Eliminar</a>";
+                            echo "</div></td>";
+                            echo "</tr>";
+                        }
+                        echo "</tbody>";
+                        echo "</table>";
+                        echo "</div>";
+                    } else {
+                        echo "<p>No se encontró ningún software asociado con la nómina $buscar_nomina.</p>";
                     }
-                    echo "</tbody>";
-                    echo "</table>";
-                    echo "</div>";
-                } else {
-                    echo "<p>No se encontró ningún software asociado con la nómina $buscar_nomina.</p>";
                 }
 
                 echo "<div style='margin-top: 20px; text-align: center;'>";
@@ -341,7 +399,20 @@
                 echo "</div>";
 
                 // Cerrar la conexión a la base de datos
-                close_connection($conn);
+                // La conexión se cierra automáticamente
+            }
+            } catch (Exception $e) {
+                echo "<div class='alert alert-error'>";
+                echo "<h3>❌ Error del Sistema</h3>";
+                echo "<p>Ha ocurrido un error inesperado. Por favor, contacte al administrador del sistema.</p>";
+                echo "<p><small>Error ID: " . uniqid() . "</small></p>";
+                echo "</div>";
+                
+                ErrorHandler::logCustom('CRITICAL', 'Error no manejado en procesar_datos.php: ' . $e->getMessage(), [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'trace' => $e->getTraceAsString()
+                ]);
             }
             ?>
         </div>
