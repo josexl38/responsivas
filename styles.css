@@ -10,6 +10,8 @@ body {
     background-size: cover;
     background-attachment: fixed;
     background-color: #000; /* Color de respaldo */
+    background-attachment: fixed;
+    background-color: #000; /* Color de respaldo */
     background-attachment: fixed; /* OPTIMIZACIÓN: Fondo fijo */
     color: #333;
     min-height: 100vh;
@@ -25,8 +27,6 @@ body {
 
 .box {
     background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 10px;
     text-align: center;
     animation: fadeIn 2s ease-in-out;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
@@ -465,7 +465,8 @@ body[data-page="eliminar"] {
     padding: 20px;
     border-radius: 10px;
     margin-bottom: 20px;
-}
+    animation: fadeIn 2s ease-in-out;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
 
 .filter-row {
     display: flex;
