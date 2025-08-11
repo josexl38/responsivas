@@ -307,6 +307,103 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     console.log('Sistema de validación y mejoras cargado correctamente');
+
+// Función esencial para mostrar/ocultar formularios
+function mostrarFormulario(tipo) {
+    // Ocultar todos los formularios
+    const formularios = [
+        'formulario_inicio',
+        'formulario_usuario', 
+        'formulario_equipo',
+        'formulario_hardware',
+        'formulario_software',
+        'formulario_buscar',
+        'formulario_responsivas',
+        'formulario_responsivas_software',
+        'formulario_responsivas_hardware'
+    ];
+    
+    formularios.forEach(function(id) {
+        const elemento = document.getElementById(id);
+        if (elemento) {
+            elemento.classList.add('hidden');
+        }
+    });
+    
+    // Mostrar el formulario seleccionado
+    const formularioSeleccionado = document.getElementById('formulario_' + tipo);
+    if (formularioSeleccionado) {
+        formularioSeleccionado.classList.remove('hidden');
+        
+        // Enfocar el primer campo del formulario
+        const primerInput = formularioSeleccionado.querySelector('input, select');
+        if (primerInput) {
+            setTimeout(() => primerInput.focus(), 100);
+        }
+    }
+    
+    // Manejar búsqueda especial
+    if (tipo === 'buscar') {
+        const buscarForm = document.querySelector('#formulario_buscar form');
+        if (buscarForm) {
+            buscarForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const nomina = document.getElementById('buscar_nomina').value.trim();
+                const apellidos = document.getElementById('buscar_apellidos').value.trim();
+                
+                if (!nomina && !apellidos) {
+                    showToast('Por favor ingrese una nómina o apellidos para buscar', 'error');
+                    return;
+                }
+                
+                // Actualizar campos ocultos
+                document.getElementById('hidden_nomina').value = nomina;
+                document.getElementById('hidden_apellidos').value = apellidos;
+                
+                // Construir URL de búsqueda
+                let url = 'procesar_datos.php?';
+                if (nomina) {
+                    url += 'buscar_nomina=' + encodeURIComponent(nomina);
+                } else if (apellidos) {
+                    url += 'buscar_apellidos=' + encodeURIComponent(apellidos);
+                }
+                
+                // Redirigir a la búsqueda
+                window.location.href = url;
+            });
+        }
+        
+        // Configurar botones de búsqueda
+        const btnBuscar = document.querySelector('.btn-search');
+        const btnLimpiar = document.querySelector('.btn-clear');
+        
+        if (btnBuscar) {
+            btnBuscar.addEventListener('click', function(e) {
+                e.preventDefault();
+                buscarForm.dispatchEvent(new Event('submit'));
+            });
+        }
+        
+        if (btnLimpiar) {
+            btnLimpiar.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('buscar_nomina').value = '';
+                document.getElementById('buscar_apellidos').value = '';
+                
+                // Limpiar validaciones
+                const inputs = document.querySelectorAll('#formulario_buscar input');
+                inputs.forEach(input => {
+                    input.classList.remove('field-valid', 'field-invalid');
+                    removeValidationMessage(input);
+                });
+            });
+        }
+    }
+}
+
+// Hacer la función global para que funcione con onclick
+window.mostrarFormulario = mostrarFormulario;
 });
 
 // Funciones globales para uso en PHP
