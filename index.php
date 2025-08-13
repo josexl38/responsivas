@@ -25,6 +25,7 @@ if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
             </div>
             <div id="buttons">
                 <button onclick="window.location.href='inicio.html'">Inicio</button>
+                <button onclick="window.location.href='dashboard.php'">📊 Dashboard</button>
                 <button onclick="mostrarFormulario('usuario')">Usuario</button>
                 <button onclick="mostrarFormulario('equipo')">Equipo</button>
                 <button onclick="mostrarFormulario('hardware')">Hardware</button>
